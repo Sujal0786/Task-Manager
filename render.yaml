@@ -1,11 +1,13 @@
-# Render: deploy backend only from this repo (frontend → Vercel).
+# Backend on Render (free tier). Frontend is on Vercel.
 services:
   - type: web
     name: taskflow-backend
-    env: node
+    runtime: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -15,4 +17,4 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://taskflow-manager-gamma.vercel.app
