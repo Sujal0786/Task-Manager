@@ -1,37 +1,108 @@
 # TaskFlow Manager
 
-Full-stack project management application with role-based access, JWT authentication, and a modern React dashboard.
+## 🚀 Live Deployment
 
-## Project overview
+| Service | URL |
+|----------|-----|
+| **Frontend (Vercel)** | https://taskflow-manager-gamma.vercel.app |
+| **Backend (Render)** | https://taskflow-backend-4zhd.onrender.com |
+| **API Health Check** | https://taskflow-backend-4zhd.onrender.com/api/health → `{"status":"ok"}` |
 
-TaskFlow Manager helps teams organize work into projects and tasks with clear **Admin** vs **Member** permissions, progress tracking, and a dashboard tailored to each role.
+---
+
+## ✅ Deployment Notes
+
+- Blueprint deployment on Render was initially blocked because of:
+  - payment modal issue
+  - invalid `node` environment configuration
+
+### Fix Applied
+
+- Switched to **New → Web Service (Free Plan)**
+- Updated `render.yaml`
+  - `runtime: node`
+  - `plan: free`
+
+### Render Configuration
+
+| Setting | Value |
+|---------|-------|
+| Repository | `Task-Manager` |
+| Root Directory | `backend` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+
+### Environment Variables Configured
+
+```env
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret
+FRONTEND_URL=https://taskflow-manager-gamma.vercel.app
+NODE_ENV=production
+```
+
+### Frontend Redeployment
+
+Updated Vercel environment variable:
+
+```env
+VITE_API_URL=https://taskflow-backend-4zhd.onrender.com/api
+```
+
+Frontend was redeployed successfully after updating the API URL.
+
+---
+
+## Project Overview
+
+TaskFlow Manager is a full-stack project management application with role-based access, JWT authentication, and a modern React dashboard.
+
+The platform helps teams organize projects and tasks with clear **Admin** vs **Member** permissions, progress tracking, and responsive UI workflows.
+
+---
 
 ## Features
 
 - Email/password authentication with JWT and bcrypt
-- **Admin** users: create/manage projects, manage members, full task CRUD and assignment
-- **Member** users: see only projects they belong to and tasks assigned to them; update status on assigned tasks only
-- Task workflow: **Todo**, **In Progress**, **Completed**
-- Priorities: **Low**, **Medium**, **High**
-- Due dates with overdue highlighting on the UI
-- Dashboard with aggregate stats and completion progress
-- Responsive SaaS-style layout with sidebar, top bar, loading/empty states, and confirmations on destructive actions
+- Admin users:
+  - create/manage projects
+  - manage members
+  - full task CRUD and assignment
+- Member users:
+  - see only assigned projects/tasks
+  - update task status only
+- Task workflow:
+  - Todo
+  - In Progress
+  - Completed
+- Priority levels:
+  - Low
+  - Medium
+  - High
+- Due dates with overdue highlighting
+- Dashboard with aggregate stats and progress tracking
+- Responsive SaaS-style UI
+- Protected routes and role-based access control
+- Loading states and delete confirmations
 
-## Tech stack
+---
 
-| Layer    | Technology                          |
-| -------- | ----------------------------------- |
-| Frontend | React 18, Vite, Tailwind CSS        |
-| Backend  | Node.js 18+, Express.js             |
-| Database | MongoDB Atlas + Mongoose            |
-| Auth     | JWT + bcrypt                        |
-| Deploy   | Render (see `render.yaml` template) |
+## Tech Stack
 
-## Screenshots
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, Vite, Tailwind CSS |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas + Mongoose |
+| Authentication | JWT + bcrypt |
+| Deployment | Vercel + Render |
 
-_Add screenshots of Dashboard, Projects, and Project detail here after deployment._
+---
 
-## Folder structure
+
+---
+
+## Folder Structure
 
 ```text
 root/
@@ -39,208 +110,261 @@ root/
     src/
       config/        # Database connection
       controllers/   # Route handlers
-      middleware/    # Auth, errors
+      middleware/    # Auth and error handling
       models/        # Mongoose models
-      routes/        # Express routers
-      utils/         # JWT helpers, seed script
+      routes/        # Express routes
+      utils/         # JWT helpers and seed script
       server.js
     package.json
     .env.example
+
   frontend/
     src/
       api/           # Axios client
-      components/    # UI building blocks
+      components/    # Reusable UI components
       context/       # Auth context
-      pages/         # Route-level views
+      pages/         # Route-level pages
       routes/        # Router configuration
-      utils/         # Formatting helpers
+      utils/         # Utility helpers
       App.jsx
       main.jsx
     package.json
     .env.example
+
   README.md
   render.yaml
 ```
 
-## API endpoints
+---
 
-### Auth
+# API Endpoints
 
-| Method | Path               | Description              |
-| ------ | ------------------ | ------------------------ |
-| POST   | `/api/auth/signup` | Register (Member role)   |
-| POST   | `/api/auth/login`  | Login, returns JWT       |
-| GET    | `/api/auth/me`     | Current user (protected) |
+## Auth Routes
 
-### Projects (protected)
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| POST | `/api/auth/signup` | Register new user |
+| POST | `/api/auth/login` | Login user |
+| GET | `/api/auth/me` | Get current user |
 
-| Method | Path                                   | Description                         |
-| ------ | -------------------------------------- | ----------------------------------- |
-| POST   | `/api/projects`                        | Create project (Admin only)         |
-| GET    | `/api/projects`                        | List projects (role-aware)          |
-| GET    | `/api/projects/:id`                    | Project detail                      |
-| PUT    | `/api/projects/:id`                   | Update project (Admin)              |
-| DELETE | `/api/projects/:id`                  | Delete project (Admin)              |
-| POST   | `/api/projects/:id/members`          | Add member by `userId` or `email`   |
-| DELETE | `/api/projects/:id/members/:userId`  | Remove member (Admin)               |
+---
 
-### Tasks (protected)
+## Project Routes (Protected)
 
-| Method | Path                                   | Description                                      |
-| ------ | -------------------------------------- | ------------------------------------------------ |
-| POST   | `/api/projects/:projectId/tasks`       | Create task (Admin)                              |
-| GET    | `/api/projects/:projectId/tasks`       | List tasks (Admin: all, Member: assigned only)   |
-| GET    | `/api/tasks/my`                        | Tasks assigned to current user                   |
-| PUT    | `/api/tasks/:id`                       | Update task (Admin: full, Member: status only)   |
-| DELETE | `/api/tasks/:id`                       | Delete task (Admin)                              |
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| POST | `/api/projects` | Create project |
+| GET | `/api/projects` | Get all projects |
+| GET | `/api/projects/:id` | Get project details |
+| PUT | `/api/projects/:id` | Update project |
+| DELETE | `/api/projects/:id` | Delete project |
+| POST | `/api/projects/:id/members` | Add member |
+| DELETE | `/api/projects/:id/members/:userId` | Remove member |
 
-### Dashboard (protected)
+---
 
-| Method | Path               | Description                         |
-| ------ | ------------------ | ----------------------------------- |
-| GET    | `/api/dashboard`   | Aggregated stats for current user |
+## Task Routes (Protected)
 
-### Health
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| POST | `/api/projects/:projectId/tasks` | Create task |
+| GET | `/api/projects/:projectId/tasks` | Get tasks |
+| GET | `/api/tasks/my` | Get assigned tasks |
+| PUT | `/api/tasks/:id` | Update task |
+| DELETE | `/api/tasks/:id` | Delete task |
 
-| Method | Path            | Description   |
-| ------ | --------------- | ------------- |
-| GET    | `/api/health`   | Service check |
+---
 
-## Local setup
+## Dashboard Route
 
-### Prerequisites
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| GET | `/api/dashboard` | Dashboard statistics |
+
+---
+
+## Health Route
+
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| GET | `/api/health` | API health check |
+
+---
+
+# Local Setup
+
+## Prerequisites
 
 - Node.js 18+
-- MongoDB Atlas cluster (or local MongoDB) and connection string
+- MongoDB Atlas
 
-### Backend
+---
+
+## Backend Setup
 
 ```bash
 cd backend
+
 cp .env.example .env
-# Set MONGO_URI, JWT_SECRET, FRONTEND_URL (e.g. http://localhost:5173)
+
 npm install
-npm run seed   # optional: demo users + sample data
-npm run dev    # or npm start
-```
 
-API listens on `http://localhost:5000` by default.
+npm run seed
 
-### Frontend
-
-```bash
-cd frontend
-cp .env.example .env
-# VITE_API_URL should point to the API root including /api, e.g.:
-# VITE_API_URL=http://localhost:5000/api
-npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Backend runs on:
 
-## Environment variables
+```text
+http://localhost:5000
+```
 
-### Backend (`backend/.env`)
+---
 
-| Name           | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `PORT`         | Server port (default `5000`)                     |
-| `MONGO_URI`    | MongoDB connection string                        |
-| `JWT_SECRET`   | Secret for signing JWTs                          |
-| `FRONTEND_URL` | Allowed CORS origin(s), comma-separated if many  |
-| `NODE_ENV`     | `development` or `production`                    |
+## Frontend Setup
 
-### Frontend (`frontend/.env`)
+```bash
+cd frontend
 
-| Name            | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `VITE_API_URL`  | Base URL for API calls, e.g. `https://.../api`   |
+cp .env.example .env
 
-## Seed command
+npm install
 
-From `backend/` after configuring `.env`:
+npm run dev
+```
+
+Frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# Environment Variables
+
+## Backend `.env`
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+FRONTEND_URL=http://localhost:5173
+NODE_ENV=development
+```
+
+---
+
+## Frontend `.env`
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+# Seed Command
+
+Run from backend folder:
 
 ```bash
 npm run seed
 ```
 
-Creates/updates demo users and sample project/tasks:
+Demo credentials:
 
-| Role   | Email            | Password    |
-| ------ | ---------------- | ----------- |
-| Admin  | `admin@test.com` | `Admin@123` |
-| Member | `member@test.com`| `Member@123`|
+| Role | Email | Password |
+|------|--------|----------|
+| Admin | admin@test.com | Admin@123 |
+| Member | member@test.com | Member@123 |
 
-## Render deployment
+---
 
-You can deploy **two Web Services** (or Static Site + Web Service) on Render.
+# Deployment
 
-### Backend service
+## Backend (Render)
 
-- **Root Directory:** `backend`
-- **Build Command:** `npm install`
-- **Start Command:** `npm start`
-- **Environment variables**
+| Setting | Value |
+|---------|-------|
+| Root Directory | `backend` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
 
-  - `MONGO_URI` – Atlas URI  
-  - `JWT_SECRET` – long random string  
-  - `FRONTEND_URL` – public frontend URL (e.g. `https://taskflow-frontend.onrender.com`)  
-  - `NODE_ENV` – `production`  
+### Backend Environment Variables
 
-### Frontend service (static)
+```env
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret
+FRONTEND_URL=https://taskflow-manager-gamma.vercel.app
+NODE_ENV=production
+```
 
-- **Root Directory:** `frontend`
-- **Build Command:** `npm install && npm run build`
-- **Publish Directory:** `dist`
-- **Environment variable**
+---
 
-  - `VITE_API_URL` – `https://<your-backend>.onrender.com/api`
+## Frontend (Vercel)
 
-After first deploy, update `FRONTEND_URL` on the backend to match the deployed frontend URL, then redeploy the backend so CORS allows the correct origin.
+### Environment Variable
 
-A starter blueprint is in `render.yaml` (adjust names/plan as needed).
+```env
+VITE_API_URL=https://taskflow-backend-4zhd.onrender.com/api
+```
 
-## Demo credentials
+---
 
-See **Seed command** above for `admin@test.com` / `Admin@123` and `member@test.com` / `Member@123`.
+# Demo Credentials
 
-## Live URLs (placeholders)
+| Role | Email | Password |
+|------|--------|----------|
+| Admin | admin@test.com | Admin@123 |
+| Member | member@test.com | Member@123 |
 
-- **Frontend:** `https://your-frontend.onrender.com`
-- **Backend:** `https://your-backend.onrender.com`
+---
 
-## GitHub repository (placeholder)
+# Live URLs
 
-`https://github.com/your-username/taskflow-manager`
+- Frontend:
+  https://taskflow-manager-gamma.vercel.app
 
-## Demo video link (placeholder)
+- Backend:
+  https://taskflow-backend-4zhd.onrender.com
 
-`https://www.youtube.com/watch?v=YOUR_VIDEO_ID`
+- API Health:
+  https://taskflow-backend-4zhd.onrender.com/api/health
 
-## Demo video script (60–90 seconds)
+---
 
-1. **Intro (5s):** “TaskFlow Manager is a role-based project management app for small teams.”
-2. **Login as Admin (10s):** Sign in with `admin@test.com`, show dashboard cards and completion bar.
-3. **Projects (15s):** Open Projects, highlight sample project, open detail; show tasks table, priorities, due dates, overdue tag.
-4. **Admin actions (20s):** Create a quick task, assign to member, change status; add a member by email; mention delete confirmations.
-5. **Logout / Member (20s):** Log in as `member@test.com`; show only assigned tasks on project page and **My Tasks**; change a task status; note missing delete/admin buttons.
-6. **Close (5s):** “Stack: React, Node, MongoDB, JWT—ready for Render and GitHub.”
+# GitHub Repository
 
-## Testing checklist
+```text
+https://github.com/your-username/taskflow-manager
+```
 
-- [ ] Signup creates Member user; validation errors for short password/invalid email
-- [ ] Login returns JWT; `/auth/me` reflects current user
-- [ ] Admin can create project; Member receives 403 on `POST /projects`
-- [ ] Member only sees member projects; Admin sees broader project list
-- [ ] Member cannot add/remove members or delete project/task
-- [ ] Member can change status only on assigned tasks
-- [ ] Admin can CRUD tasks and assign only to project members
-- [ ] Dashboard stats change when tasks move to Completed
-- [ ] Overdue tasks show when due date is before today and status not Completed
-- [ ] Logout clears session; protected routes redirect to login
-- [ ] CORS works when `FRONTEND_URL` matches deployed frontend
+---
 
-## License
+# Demo Video
 
-MIT (adjust as needed for your course or organization).
+```text
+https://www.youtube.com/watch?v=YOUR_VIDEO_ID
+```
+
+---
+
+# Testing Checklist
+
+- [ ] User signup works
+- [ ] Login returns JWT
+- [ ] Protected routes require auth
+- [ ] Admin can create projects/tasks
+- [ ] Members only see assigned tasks
+- [ ] Role-based access control works
+- [ ] Dashboard statistics update correctly
+- [ ] Overdue tasks highlight properly
+- [ ] Logout clears session
+- [ ] CORS works with deployed frontend
+
+---
+
+# License
+
+MIT License
