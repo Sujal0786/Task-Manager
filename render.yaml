@@ -1,3 +1,4 @@
+# Render: deploy backend only from this repo (frontend → Vercel).
 services:
   - type: web
     name: taskflow-backend
@@ -14,14 +15,4 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
-        sync: false
-
-  - type: web
-    name: taskflow-frontend
-    env: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_URL
         sync: false
